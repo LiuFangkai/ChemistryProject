@@ -18,11 +18,23 @@ if os.path.exists(UPLOAD_FOLDER)==False:
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+#高分子数据(Lu,Mo,pc,deltaHm0,sigmae,Tm0)
+JBXData=[2.167,42,0.936,209.2,31,459]
+
+def getData(arr):
+    Lu=float(arr[0])
+    Mo=float(arr[1])
+    pc=float(arr[2])
+    deltaHm0=float(arr[3])
+    sigmae=float(arr[4])
+    Tm0=float(arr[5]-273.15)
+    return Lu,Mo,pc,deltaHm0,sigmae,Tm0
+
+
 #用来判断上传的文件是否是csv文件
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
 
 #生成唯一的文件名
 def randomfile(filename):
@@ -42,21 +54,17 @@ def upload_single_file(label):
 
 #返回所有文件的路径
 def upload_all_file():
-    uploadpath1=upload_single_file('file1')
     uploadpath2 = upload_single_file('file2')
     uploadpath3 = upload_single_file('file3')
-    return uploadpath1,uploadpath2,uploadpath3
-
-#从前台form中获得v的值
-def getv():
-    velocity=int(request.form.get('velocity'))
-    return velocity
+    return uploadpath2,uploadpath3
 
 #计算所得到的值，并返回
 def caculate():
-    path1,path2,path3=upload_all_file()
-    v=getv()
-    Mn,Mw,PDI=getMnAndMwPDI.getAlldata(path1,path2,path3,v)
+    path2,path3=upload_all_file()
+    v=int(request.form.get('velocity'))  #获取前台的v值
+    if request.form.get("select") == 'JuBingXi':
+        Lu, Mo, pc, deltaHm0, sigmae, Tm0 = getData(JBXData)
+    Mn,Mw,PDI=getMnAndMwPDI.getAlldata(path2,path3,v,Lu, Mo, pc, deltaHm0, sigmae, Tm0)
     return Mn,Mw,PDI
 
 @app.route('/', methods=['GET', 'POST'])
@@ -70,12 +78,6 @@ def index():
         }
         return render_template('result.html',data=data)
     return render_template('upload.html')
-
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

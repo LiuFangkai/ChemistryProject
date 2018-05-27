@@ -6,6 +6,7 @@
     <style>
         label{display:inline-block;width:180px;text-align:left}
         input{width:200px;height:30px;}
+        select{width:200px;height:30px;}
         #submit{width:150px;height:30px;}
         body{
         width:100%;
@@ -15,13 +16,18 @@
     </style>
 </head>
 <body>
-
-<div>
+<div id="p1">
 <h1>文件上传</h1>
 <form action="" enctype="multipart/form-data" method="post">
     <p>
-        <label>上传高分子类型数据：</label>
-        <input type="file" name="file1">
+        <label>选择高分子类型：</label>
+        <select name="select">
+            <option selected="selected">--请选择高分子类型--</option>
+            <option value="JuBingXi">聚丙烯</option>
+            <option></option>
+            <option></option>
+            <option></option>
+        </select>
     </p>
     <p>
         <label>上传冷却曲线数据：</label>
