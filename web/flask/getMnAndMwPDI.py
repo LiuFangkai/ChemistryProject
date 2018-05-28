@@ -1,12 +1,10 @@
-import csv
-import re
-from hot import getHmAndTm
-from cool import getXt1AndXt2
+from web.flask import getXt1AndXt2, getHmAndTm
+
 
 def getMn(Xt2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0):
     deltaHm2 = getHmAndTm.getHotHm(filename3) * getHmAndTm.getHotHm(filename3)
     fz=2*sigmae*deltaHm0*Mo  #分子
-    maxTm=getHmAndTm.getXofmaxy(filename3)
+    maxTm= getHmAndTm.getXofmaxy(filename3)
     fm = deltaHm2 * Xt2 * Lu * pc * (1 - maxTm / Tm0)
     Mn=fz/fm
     return Mn
@@ -21,8 +19,8 @@ def getPDI(Mn,Mw):
 
 #和前端对应,file1为高分子类型，file2为降温曲线，file3为升温曲线
 def getAlldata(filename2,filename3,v,Lu, Mo, pc, deltaHm0, sigmae, Tm0):
-    Mn=getMn(getXt1AndXt2.getXt2(filename2,v),filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0)
-    Mw1=getMw(getXt1AndXt2.getXt1(filename2,v),filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0)
+    Mn=getMn(getXt1AndXt2.getXt2(filename2, v), filename3, Lu, Mo, pc, deltaHm0, sigmae, Tm0)
+    Mw1=getMw(getXt1AndXt2.getXt1(filename2, v), filename3, Lu, Mo, pc, deltaHm0, sigmae, Tm0)
     Mw=(Mn+Mw1)/2
     PDI=getPDI(Mn,Mw)
     return Mn,Mw,PDI

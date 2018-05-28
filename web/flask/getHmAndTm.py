@@ -1,4 +1,6 @@
-from cool import getXt1AndXt2
+from web.flask import getXt1AndXt2
+
+
 #改文件为升温数据文件，对应于前端的file3
 #导入csv文件
 def correctHot(filename):
