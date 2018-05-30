@@ -9,33 +9,27 @@ from scipy import optimize
 
 
 #该文件为降温数据文件，对应于前端file2
-#导入csv文件
-#步骤0，读读降温数据（确保数据是从大到小）
+
+#步骤1，读读降温数据（确保数据是从大到小）
 def readCsv(filename):
     with open(filename) as f:
-        data= csv.reader(f)
+        table = []
+        for line in f:
+            col = line.split(',')
+            col[0] = float(col[0])
+            col[1] = float(col[1])
+            table.append(col)
+        table_sorted = sorted(table, key=itemgetter(0),reverse=False) #对降温数据进行排序，默认为升序排列
         x0 = []
         y0 = []
-        for row in data:
-            x0.append(float(row[0]))
-            y0.append(float(row[1]))
+        for row in table_sorted:
+            x0.append(row[0])
+            y0.append(row[1])
     return x0,y0
-
-#步骤1，将数据从降序变成升序
-def changeDECtoASC(filename):
-    x0=readCsv(filename)[0]
-    y0=readCsv(filename)[1]
-    x1 = copy.deepcopy(x0)
-    y1 = copy.deepcopy(y0)
-    x1.reverse()
-    y1.reverse()
-    return x1,y1
-
 
 #步骤2，进行基线修正，确定a，b两点，返回修正后的坐标，存在x，y中
 def correct(filename):
-    x1=changeDECtoASC(filename)[0]
-    y1=changeDECtoASC(filename)[1]
+    x1,y1=readCsv(filename)
     # 用来找到a点起点，暂定斜率为10度
     for i in range(len(x1)):
         xx = (x1[i + 1] - x1[i]) / 10
@@ -81,7 +75,8 @@ def caculateXt(filename):
         y4.append(tempArea / area)
     return y4
 
-#步骤4，将温度变化从b-a转化成从b-a所用的时间，降序排列的，存在x2中
+#步骤4，将温度变化从b-a转化成从b-a所用的时间，降序排列的，存在x2中,
+# !!!!注意，因为下面用的是部分时间与总时间的比例，所以降温速度为多少，并不影响最后结果
 def temperatureToTime(filename,v):
     x=correct(filename)[0]
     # x2中存储温度变化时间，降序（b-a到b-b）
@@ -197,20 +192,7 @@ def getPointProfitTenPoint(filename,v):
     for i in range(len(x)):
         y.append(p1(x[i]))
     return x,y
-#6.5.4找出直线和曲线的分离点,y1是曲线，y2是直线
-# def getFirstPoint(filename,v):
-#     x,y1=getPointProfitTenPoint(filename,v)
-#     a1, b1 = getFirstLine(filename,v)
-#     y2=[]
-#     for i in range(len(x)):
-#         y2.append(a1*(x[i])+b1)
-#     for i in range(len(y1)):
-#         if (y2[i]-y1[i])<0.1 and (y2[i]-y1[i])>0:
-#             xx=x[i]
-#             yy=a1*xx+b1
-#             print(xx)
-#             break
-#     return xx,yy
+
 #求拟合之后曲线的导数
 def getDiff(filename,v):
     p=getTenPointLine(filename,v)
@@ -227,7 +209,6 @@ def getFirstPoint(filename,v):
         if (k1-k2)<0.01 and (k1-k2)>0:
             xx=x1[i]
             yy = a1 * xx + b1
-            print(xx)
             break
     return xx,yy
 
@@ -240,6 +221,7 @@ def getXt1(filename,v):
 if __name__ == '__main__':
     filename = 'C:/Users/LFK/Desktop/数据/数据/输入数据1-冷却曲线.csv'
     v=20
+    # x2=temperatureToTime(filename,v)
     Xt2=getXt2(filename,v)
     print(Xt2)
     Xt1=getXt1(filename,v)

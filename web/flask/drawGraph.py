@@ -42,6 +42,17 @@ def coolCorrectGraph(filename,str):
     ptext = '降温曲线'
     drawPlot(htext, xtext, ytext, x, y, cpValue, ptext, str)
 
+#2.1绘制热流量和时间的曲线
+def coolTGraph(filename,v,str):
+    x=getXt1AndXt2.temperatureToTime(filename,v)
+    y=getXt1AndXt2.correct(filename)[1]
+    htext = '基线修正后热流量-时间曲线'
+    xtext = 'Temperature(℃)'
+    ytext = 'Heatflow(a.u.)'
+    cpValue = 'blue'
+    ptext = '热流量-时间曲线'
+    drawPlot(htext, xtext, ytext, x, y, cpValue, ptext, str)
+
 
 #3.绘制相对结晶度随时间变化的曲线
 def xtWithTGraph(filename,v,str):
@@ -112,7 +123,13 @@ def profitFindSecondPointGraph(filename,v,str):
     plt.plot(x2, y2, 'red', label='[-2.2,-1]的拟合直线')
     x,y= getXt1AndXt2.getSecondPoint(filename, v)
     plt.scatter(x, y, 25, 'black', label=(x, y))
-    trWithxtGraph(filename,v,str)
+    htext = '求第二个交点图像'
+    xtext = 'ln(t/t总）'
+    ytext = 'ln(-ln(1-Xt))'
+    x, y = getXt1AndXt2.changeTAndXt(filename, v)
+    cpValue = 'cyan'
+    ptext = 'ln(-ln(1-Xt))—lntr'
+    drawPlot(htext, xtext, ytext, x, y, cpValue, ptext, str)
 
 #9.绘制拟合直线和曲线求第一个交点的图像
 def profitFindFirstPointGraph(filename,v,str):
@@ -120,6 +137,8 @@ def profitFindFirstPointGraph(filename,v,str):
     plt.scatter(x9[:],y9[:],25,'yellow')
     x1,y1= getXt1AndXt2.getTenPoint(filename, v)
     plt.plot(x1,y1,'blue',label='取十个点进行拟合的图像')
+    x,y=getXt1AndXt2.getFirstPoint(filename,v)
+    plt.scatter(x,y,25,'black',label=(x,y))
     htext='求第一个交点图像'
     xtext = 'ln(t/t总）'
     ytext = 'ln(-ln(1-Xt))'
@@ -132,7 +151,8 @@ if __name__ == '__main__':
     f2 = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
     v=20
     # coolGraph(f1,'降温曲线')
-    coolCorrectGraph(f1,'基线修正后降温曲线')
+    # coolCorrectGraph(f1,'基线修正后降温曲线')
+    coolTGraph(f1,v,'热流量-时间曲线')
     # xtWithTemperatureGraph(f1,'降温：相对结晶度—温度')
     # xtWithTGraph(f1,v,'降温：相对结晶度—时间')
     # trWithxtGraph(f1,v,'ln(-ln(1-Xt))关于lntr的图像')
