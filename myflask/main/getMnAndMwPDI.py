@@ -1,4 +1,4 @@
-from web.flask import getXt1AndXt2, getHmAndTm
+from myflask.main import getHmAndTm, getXt1AndXt2
 
 
 def getMn(Xt2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0):
@@ -28,6 +28,13 @@ def getAlldata(filename2,filename3,v,Lu, Mo, pc, deltaHm0, sigmae, Tm0):
 if __name__ == '__main__':
     f2='C:/Users/LFK/Desktop/数据/数据/输入数据1-冷却曲线.csv'
     f3='C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
+    arr=[2.167, 42, 0.936, 209.2, 31, 459]
+    Lu = float(arr[0])
+    Mo = float(arr[1])
+    pc = float(arr[2])
+    deltaHm0 = float(arr[3])
+    sigmae = float(arr[4])
+    Tm0 = float(arr[5] - 273.15)
     v=20
-    all=getAlldata(f2,f3,v)
+    all=getAlldata(f2,f3,v,Lu,Mo,pc,deltaHm0,sigmae,Tm0)
     print(all)

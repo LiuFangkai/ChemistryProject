@@ -1,19 +1,16 @@
-#coding=utf-8
 import os
-
 from flask import render_template
 from flask import Flask, request
-from web.flask import getMnAndMwPDI
+from myflask.main import getMnAndMwPDI
 
 ALLOWED_EXTENSIONS = set(['txt','csv'])
 #python3自动生成文件名
 from datetime import *
 
-
 tmp = 'static/file'
 curdir = os.path.abspath('.')  # 获得当前工作目录,如果在加一个点，是获得当前目录的父目录
-UPLOAD_FOLDER = curdir + os.path.altsep + tmp + os.path.altsep  # 该路径为当前文件夹拼接windows下文件分隔符再拼接‘tmp'文件夹，再拼接文件分隔符
-if os.path.exists(UPLOAD_FOLDER)==False:
+UPLOAD_FOLDER = curdir + os.path.altsep + tmp + os.path.altsep  # 该路径为当前文件夹拼接windows下文件分隔符再拼接'tmp'文件夹，再拼接文件分隔符
+if os.path.exists(UPLOAD_FOLDER) == False:
     os.makedirs(UPLOAD_FOLDER)
 
 app = Flask(__name__)
@@ -81,4 +78,4 @@ def index():
     return render_template('upload.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

@@ -1,4 +1,4 @@
-from web.flask import getXt1AndXt2
+from myflask.main import getXt1AndXt2
 
 
 #改文件为升温数据文件，对应于前端的file3
@@ -48,4 +48,3 @@ def getXofmaxy(filename):
 if __name__ == '__main__':
     filename = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
     Hm=getHotHm(filename)
-    print(Hm)
