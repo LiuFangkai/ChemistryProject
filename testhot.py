@@ -48,6 +48,7 @@ def correctHot(filename):
         if ang[i]==maxAng:
             temp=miny-i   #两个数据之间的位置换算
             break
+
     # 在ab之间的点，存入x,y中
     print('correct')
     print(x[temp], y[temp])
@@ -60,36 +61,8 @@ def correctHot(filename):
         y1.append(y[i])
     return x1, y1
 
-#步骤2，求熔融焓Hm(由前台自己输入)
-
-#步骤3，求Tm（计算Mn和Mw时使用的不同）
-#步骤3.1，计算基线修正后的温度的平均温度（Mn）
-def getAverageTm(filename):
-    x=correctHot(filename)[0]
-    sum=0
-    for i in range(len(x)):
-        sum=sum+x[i]
-    Tm=sum/len(x)
-    return Tm
-
-#3.2，求出纵坐标乘以横坐标除以纵坐标之和作为平均温度（Mw）
-def getTmOfMw(filename):
-    x,y=correctHot(filename)
-    sum=0
-    sum1=0
-    for i in range(len(x)):
-        sum=x[i]*abs(y[i])+sum
-        sum1=abs(y[i])+sum1
-    tm=sum/sum1
-    return tm
-
-
 if __name__ == '__main__':
-    filename = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
+    # filename = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
     # filename = 'C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C heating.csv'
-    # filename= 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 heating after 10K-min.csv'
+    filename= 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 heating after 10K-min.csv'
     correctHot(filename)
-    average=getAverageTm(filename)
-    print('average:%f'%average)
-    tm=getTmOfMw(filename)
-    print('tm:%f' % tm)

@@ -63,12 +63,13 @@ def upload_all_file():
 #计算所得到的值，并返回
 def caculate():
     path2,path3=upload_all_file()
-    v=int(request.form.get('velocity'))  #获取前台的v值
+    # v=int(request.form.get('velocity'))  #获取前台的v值
+    deltaHm=float(request.form.get('Hm'))
     if request.form.get("select") == 'JuBingXi':  #获取前台select中选中的value值
         Lu, Mo, pc, deltaHm0, sigmae, Tm0 = getData(JBXData)
     if request.form.get("select") == 'JuYangHuaYiXi':
         Lu, Mo, pc, deltaHm0, sigmae, Tm0 = getData(JBXData)
-    Mn,Mw,PDI=getMnAndMwAndPDI.getAlldata(path2, path3, v, Lu, Mo, pc, deltaHm0, sigmae, Tm0)
+    Mn,Mw,PDI=getMnAndMwAndPDI.getAlldata(path2, path3, Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm)
     return Mn,Mw,PDI
 
 @app.route('/', methods=['GET', 'POST'])

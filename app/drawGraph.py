@@ -12,18 +12,6 @@ savefold= curdir + os.path.altsep + tmp + os.path.altsep  # 该路径为当前�
 if os.path.exists(savefold) == False:
     os.makedirs(savefold)
 
-#绘图
-def drawPlot(htext,xtext,ytext,x,y,cpValue,ptext,str):
-    plt.title(htext,fontsize=24)
-    plt.xlabel(xtext,fontsize=16)
-    plt.ylabel(ytext,fontsize=16)
-    plt.plot(x,y,c=cpValue,label=ptext)
-    plt.legend()
-    plt.grid(True)
-    imagename=str+'.jpg'
-    plt.savefig(savefold+imagename)
-    plt.show()
-
 #1.绘制降温曲线
 def coolGraph(filename,str):
     htext='原始降温曲线'
@@ -50,8 +38,8 @@ def coolCorrectGraph(filename,str):
     drawPlot(htext, xtext, ytext, x, y, cpValue, ptext, str)
 
 #2.1绘制热流量和时间的曲线
-def coolTGraph(filename,v,str):
-    x= getXt1AndXt2.temperatureToTime(filename, v)
+def coolTGraph(filename,str):
+    x= getXt1AndXt2.temperatureToTime(filename)
     y= getXt1AndXt2.correct(filename)[1]
     htext = '基线修正后热流量-时间曲线'
     xtext = 'Temperature(℃)'
@@ -62,11 +50,11 @@ def coolTGraph(filename,v,str):
 
 
 #3.绘制相对结晶度随时间变化的曲线
-def xtWithTGraph(filename,v,str):
+def xtWithTGraph(filename,str):
     htext = '降温：相对结晶度—时间图像'
     xtext = 'Time/min'
     ytext = 'Xt'
-    x= getXt1AndXt2.temperatureToTime(filename, v)
+    x= getXt1AndXt2.temperatureToTime(filename)
     y= getXt1AndXt2.caculateXt(filename)
     cpValue = 'blue'
     ptext = '相对结晶度—时间'
@@ -84,11 +72,11 @@ def xtWithTemperatureGraph(filename,str):
     drawPlot(htext, xtext, ytext, x, y, cpValue, ptext,str)
 
 #5.绘制ln(-ln(1-xt))关于lntr的曲线,其中tr=t/t总
-def trWithxtGraph(filename,v,str):
+def trWithxtGraph(filename,str):
     htext = 'ln(-ln(1-Xt))关于lntr的图像'
     xtext = 'ln(t/t总）'
     ytext = 'ln(-ln(1-Xt))'
-    x,y = getXt1AndXt2.changeTAndXt(filename, v)
+    x,y = getXt1AndXt2.changeTAndXt(filename)
     cpValue = 'cyan'
     ptext = 'ln(-ln(1-Xt))—lntr'
     drawPlot(htext, xtext, ytext, x, y, cpValue, ptext,str)
@@ -119,37 +107,55 @@ def hotCorrectGraph(filename,str):
     drawPlot(htext, xtext, ytext, x, y, cpValue, ptext, str)
 
 #8.绘制拟合直线求交点的图像
-def profitFindSecondPointGraph(filename,v,str):
-    x6,y6= getXt1AndXt2.getFirstProfitPoint(filename, v)
+def profitFindSecondPointGraph(filename,str):
+    x6,y6= getXt1AndXt2.getFirstProfitPoint(filename)
     plt.scatter(x6[:], y6[:], 25, 'yellow')
-    x1,y1= getXt1AndXt2.getFirstLinePoint(filename, v)
+    x1,y1= getXt1AndXt2.getFirstLinePoint(filename)
     plt.plot(x1, y1, 'blue', label='[-5,-3]的拟合直线')
-    x7,y7= getXt1AndXt2.getSecondProfitPoint(filename, v)
+    x7,y7= getXt1AndXt2.getSecondProfitPoint(filename)
     plt.scatter(x7[:], y7[:], 25, 'green')
-    x2,y2= getXt1AndXt2.getSecondLinePoint(filename, v)
-    plt.plot(x2, y2, 'red', label='[-2,-1]的拟合直线')
-    x,y= getXt1AndXt2.getPointOfIntersection(filename, v)
+    x2,y2= getXt1AndXt2.getSecondLinePoint(filename)
+    plt.plot(x2, y2, 'red', label='[-1.6,-1.1]的拟合直线')
+    x,y= getXt1AndXt2.getPointOfIntersection(filename)
     plt.scatter(x, y, 25, 'black', label=(x, y))
     htext = '求交点图像'
     xtext = 'ln(t/t总）'
-    ytext = 'ln(-ln(web-Xt))'
-    x, y = getXt1AndXt2.changeTAndXt(filename, v)
+    ytext = 'ln(-ln(1-Xt))'
+    x, y = getXt1AndXt2.changeTAndXt(filename)
     cpValue = 'cyan'
     ptext = 'ln(-ln(1-Xt))—lntr'
     drawPlot(htext, xtext, ytext, x, y, cpValue, ptext, str)
 
+#9,一次绘制所有图像
+def drawAllGraph(f1,f2):
+    coolGraph(f1, '降温曲线')
+    hotGraph(f2, '升温曲线')
+    coolCorrectGraph(f1,'基线修正后降温曲线')
+    hotCorrectGraph(f2, '基线修正后升温曲线')
+    coolTGraph(f1,'热流量-时间曲线')
+    xtWithTemperatureGraph(f1, '降温：相对结晶度—温度')
+    xtWithTGraph(f1,'降温：相对结晶度—时间')
+    trWithxtGraph(f1,'ln(-ln(1-Xt))关于lntr的图像')
+    profitFindSecondPointGraph(f1, '求交点图像')
+
+#绘图
+def drawPlot(htext,xtext,ytext,x,y,cpValue,ptext,str):
+    plt.title(htext,fontsize=24)
+    plt.xlabel(xtext,fontsize=16)
+    plt.ylabel(ytext,fontsize=16)
+    plt.plot(x,y,c=cpValue,label=ptext)
+    plt.legend()
+    plt.grid(True)
+    imagename=str+'2.jpg'
+    plt.savefig(savefold+imagename)
+    plt.show()
+
 if __name__ == '__main__':
     # f1= 'C:/Users/LFK/Desktop/数据/数据/输入数据1-冷却曲线.csv'
     # f2 = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
-    f1='C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C cooling.csv'
-    f2= 'C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C heating.csv'
-    v=16
-    coolGraph(f1,'降温曲线1')
-    hotGraph(f2,'升温曲线1')
-    coolCorrectGraph(f1,'基线修正后降温曲线1')
-    hotCorrectGraph(f2,'基线修正后升温曲线1')
-    coolTGraph(f1,v,'热流量-时间曲线1')
-    xtWithTemperatureGraph(f1,'降温：相对结晶度—温度1')
-    xtWithTGraph(f1,v,'降温：相对结晶度—时间1')
-    trWithxtGraph(f1,v,'ln(-ln(1-Xt))关于lntr的图像1')
-    profitFindSecondPointGraph(f1,v,'求交点图像1')
+    # f1='C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C cooling.csv'
+    # f2= 'C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C heating.csv'
+    f1= 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 10K-min cooling.csv'
+    f2 = 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 heating after 10K-min.csv'
+    drawAllGraph(f1,f2)
+
