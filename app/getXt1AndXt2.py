@@ -29,8 +29,8 @@ def f(x,a,b):
 
 # 步骤2，进行基线修正，确定a，b两点，返回修正后的坐标，存在x，y中
 #降温数据从温度高的地方先修正
-def correct(filename):
-    x0, y0 =readCsv(filename)
+def correct(filename,**kwargs):
+    x0, y0 = readCsv(filename)
     maxy = y0.index(max(y0))  # 最低温度点
     x = []
     y = []
@@ -70,19 +70,48 @@ def correct(filename):
 
     # # 在ab之间的点，存入x,y中
     # print('correct')
-    # print(x[temp], y[temp])
-    # print(x[temp1], y[temp1])
-
+    # print(x0[temp], y0[temp])
+    # print(x0[temp1], y0[temp1])
     x1 = []
     y1 = []
-    for i in range(temp, temp1 + 1):
-        x1.append(x[i])
-        y1.append(y[i])
-    return x1, y1
+    if('coolStart' not in kwargs and 'coolEnd' not in kwargs):
+        for i in range(temp, temp1 + 1):
+            x1.append(x0[i])
+            y1.append(y0[i])
+    elif('coolStart' in kwargs and 'coolEnd' in kwargs):
+        for i in range(len(x)):
+            if(abs(x[i]-kwargs['coolStart'])<0.001):
+                flag1=i
+                break
+        for i in range(len(x)):
+            if(abs(x[i]-kwargs['coolEnd'])<0.001):
+                flag2=i
+                break
+        for i in range(flag1, flag2+ 1):
+            x1.append(x0[i])
+            y1.append(y0[i])
+    else:
+        if("coolStart" in kwargs):
+            for i in range(len(x)):
+                if(abs(x[i]-kwargs["coolStart"])<0.01):
+                    flag=i
+                    break
+            for i in range(flag,temp1+1):
+                x1.append(x0[i])
+                y1.append(y0[i])
+        else:
+            for i in range(len(x)):
+                if(abs(x[i]-kwargs["coolEnd"])<0.01):
+                    flag=i
+                    break
+            for i in range(temp,flag+1):
+                x1.append(x0[i])
+                y1.append(y0[i])
+    return x1,y1
 
 # 步骤3，求相对结晶度Xt，存在y4中，降序排列(因为求的基线不是近似平行的，所以求直线积分，然后减去）
-def caculateXt(filename):
-    x, y = correct(filename)
+def caculateXt(filename,**kwargs):
+    x, y = correct(filename,**kwargs)
     # 拟合后的直线方程
     xx = [x[0], x[len(x) - 1]]
     yy = [y[0], y[len(y) - 1]]
@@ -106,8 +135,8 @@ def caculateXt(filename):
 
 #步骤4，将温度变化从b-a转化成从b-a所用的时间，降序排列的，存在x2中,
 # !!!!注意，因为下面用的是部分时间与总时间的比例，所以降温速度为多少，并不影响最后结果
-def temperatureToTime(filename):
-    x=correct(filename)[0]
+def temperatureToTime(filename,**kwargs):
+    x=correct(filename,**kwargs)[0]
     # x2中存储温度变化时间，降序（b-a到b-b）
     x2 = []
     for k in range(len(x)):
@@ -117,9 +146,9 @@ def temperatureToTime(filename):
 #步骤5，计算经转化后的t，Xt，存在x5，y5中
     # 横坐标为In(t/t总)，存在x5中
     # 从大到小，纵坐标为ln(-ln(1-Xt))，存在y5中
-def changeTAndXt(filename):
-    x2=temperatureToTime(filename)
-    y4=caculateXt(filename)
+def changeTAndXt(filename,**kwargs):
+    x2=temperatureToTime(filename,**kwargs)
+    y4=caculateXt(filename,**kwargs)
     x5 = []
     y5 = []
     totalTime = x2[0]
@@ -137,65 +166,92 @@ def f(x,a,b):
 
 # 6.2进行-5到-3之间的直线拟合
 #6.2.1找到符合条件的第一条直线的离散点
-def getFirstProfitPoint(filename):
-    x5 = changeTAndXt(filename)[0]
-    y5 = changeTAndXt(filename)[1]
+def getFirstProfitPoint(filename,**kwargs):
+    global leftStart
+    global leftEnd
+    leftStart = -5
+    leftEnd = -3
+    if('leftStart' in kwargs and 'leftEnd' in kwargs):
+        leftStart=kwargs['leftStart']
+        leftEnd=kwargs['leftEnd']
+    elif('leftStart' in kwargs and 'leftEnd' not in kwargs):
+        leftStart = kwargs['leftStart']
+    elif('leftStart' not in kwargs and 'leftEnd' in kwargs):
+        leftEnd = kwargs['leftEnd']
+    else:
+        pass
+    x5 = changeTAndXt(filename,**kwargs)[0]
+    y5 = changeTAndXt(filename,**kwargs)[1]
     x6 = []
     y6 = []
     for i in range(len(x5)):
-        if x5[i] >= -5 and x5[i] <= -3:
+        if x5[i] >= leftStart and x5[i] <= leftEnd:
             x6.append(x5[i])
             y6.append(y5[i])
     return x6,y6
 #6.2.2根据离散点进行线性拟合，求出第一条直线方程
-def getFirstLine(filename):
-    x6,y6=getFirstProfitPoint(filename)
+def getFirstLine(filename,**kwargs):
+    x6,y6=getFirstProfitPoint(filename,**kwargs)
     a1, b1 = optimize.curve_fit(f, x6, y6)[0]
     return a1,b1
 #6.2.3根据拟合求出来的第一条直线方程，取出若干对x，y
-def getFirstLinePoint(filename):
-    a1,b1=getFirstLine(filename)
+def getFirstLinePoint(filename,**kwargs):
+    a1,b1=getFirstLine(filename,**kwargs)
     x = np.arange(-5,0, 0.01)
     y = a1 * x + b1
     return x,y
 
 # 6.3进行-1.6到-1.1之间的直线拟合
 #6.3.1找到符合条件的第二条直线的离散点
-def getSecondProfitPoint(filename):
-    x5 = changeTAndXt(filename)[0]
-    y5 = changeTAndXt(filename)[1]
+def getSecondProfitPoint(filename,**kwargs):
+    global rightStart
+    rightStart = -1.6
+    global rightEnd
+    rightEnd = -1.1
+    if('rightStart' in kwargs and 'rightEnd' in kwargs):
+        rightStart=kwargs['rightStart']
+        rightEnd=kwargs['rightEnd']
+    elif('rightStart' in kwargs and 'rightEnd' not in kwargs):
+        rightStart = kwargs['rightStart']
+    elif('rightStart' not in kwargs and 'rightEnd' in kwargs):
+        rightEnd = kwargs['rightEnd']
+    else:
+        pass
+
+    x5 = changeTAndXt(filename,**kwargs)[0]
+    y5 = changeTAndXt(filename,**kwargs)[1]
     x7 = []
     y7 = []
     for i in range(len(x5)):
-        if x5[i] >= -1.6 and x5[i] <= -1.1:  # 因为x5中是从小到大排序的，都是小于0的，因此第一个找到的点即近似分离点
+        if x5[i] >= rightStart and x5[i] <= rightEnd:  # 因为x5中是从小到大排序的，都是小于0的，因此第一个找到的点即近似分离点
             x7.append(x5[i])
             y7.append(y5[i])
     return x7,y7
 #6.3.2根据离散点进行线性拟合，求出第二条直线方程
-def getSecondLine(filename):
-    x7,y7=getSecondProfitPoint(filename)
+def getSecondLine(filename,**kwargs):
+    x7,y7=getSecondProfitPoint(filename,**kwargs)
     a2, b2 = optimize.curve_fit(f, x7, y7)[0]
     return a2,b2
 #6.3.3根据拟合求出来的第二条直线方程，取出若干对x，y
-def getSecondLinePoint(filename):
-    a2,b2=getSecondLine(filename)
+def getSecondLinePoint(filename,**kwargs):
+    a2,b2=getSecondLine(filename,**kwargs)
     x = np.arange(-4, 0, 0.01)
     y = a2 * x + b2
     return x,y
 
 # 6.4求[-5,-3]和[-1.6,-1.1]两直线的交点
-def getPointOfIntersection(filename):
-    a1,b1=getFirstLine(filename)
-    a2,b2=getSecondLine(filename)
+def getPointOfIntersection(filename,**kwargs):
+    a1,b1=getFirstLine(filename,**kwargs)
+    a2,b2=getSecondLine(filename,**kwargs)
     x = (b1 - b2) / (a2 - a1)
     y = a1 * x + b1
     return x,y
 
 #步骤7，根据交点求出Xt1，Xt2
 #步骤7.1，过交点做垂直于x轴的线，交于原曲线，求出此交点的y值（x0从大到小，y0从小到大）
-def getY2(filename):
-    x0,y0=changeTAndXt(filename)
-    x,y=getPointOfIntersection(filename)
+def getY2(filename,**kwargs):
+    x0,y0=changeTAndXt(filename,**kwargs)
+    x,y=getPointOfIntersection(filename,**kwargs)
     for i in range(len(x0)):
         if x==x0[i]:  #如果存在x的值和x0[i]相等，则直接令x对的y值为x0[i]这一点的纵坐标值
             y2=y0[i]
@@ -204,19 +260,19 @@ def getY2(filename):
             break
     return y2
 #步骤7.2，由y2求出Xt2
-def getXt2(filename):
-    y=getY2(filename)
+def getXt2(filename,**kwargs):
+    y=getY2(filename,**kwargs)
     Xt2 = 1 - math.exp(-math.exp(y))
     return Xt2
 #步骤7.3，由步骤6中的交点中的y1求出Xt1
-def getXt1(filename):
-    y=getPointOfIntersection(filename)[1]
+def getXt1(filename,**kwargs):
+    y=getPointOfIntersection(filename,**kwargs)[1]
     Xt1=1 - math.exp(-math.exp(y))
     return Xt1
 
 
 if __name__ == '__main__':
-    filename = 'C:/Users/LFK/Desktop/数据/数据/输入数据1-冷却曲线.csv'
+    filename = './static/file/20180921185434冷却曲线.csv'
     # filename = 'C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C cooling.csv'
     # filename = 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 10K-min cooling.csv'
     xt1=getXt1(filename)

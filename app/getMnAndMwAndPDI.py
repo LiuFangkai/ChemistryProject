@@ -1,17 +1,17 @@
 from app import getHmAndTm, getXt1AndXt2
 #步骤1，计算Mn，其中deltaHm为熔融焓（不同分子量，deltaHm不同），Tm为平均温度（计算Mw和Mn使用温度不同）
 #filename3为升温数据的,deltaHm为熔融焓，用户自己输入
-def getMn(Xt2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm):
+def getMn(Xt2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm,**kwargs):
     deltaHm2=deltaHm*deltaHm
-    Tm=getHmAndTm.getAverageTm(filename3)
+    Tm=getHmAndTm.getAverageTm(filename3,**kwargs)
     fz=2*sigmae*deltaHm0*Mo  #分子
     fm = deltaHm2 * Xt2 * Lu * pc * (1 - Tm / Tm0)
     Mn=fz/fm
     return Mn
 
 #步骤2，计算Mw，Tm为平均温度
-def getMw(Xt1,Xt2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm):
-    Tm = getHmAndTm.getTmOfMw(filename3)
+def getMw(Xt1,Xt2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm,**kwargs):
+    Tm = getHmAndTm.getTmOfMw(filename3,**kwargs)
     deltaHm2 =deltaHm*deltaHm
     fz = 2 * sigmae * deltaHm0 * Mo  # 分子
     fm = deltaHm2 * Xt1 * Lu * pc * (1 - Tm / Tm0)
@@ -26,11 +26,11 @@ def getPDI(Mn,Mw):
     return PDI
 
 #步骤3，计算Mn，Mw和PDI
-def getAlldata(filename2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm):
-    xt1=getXt1AndXt2.getXt1(filename2)
-    xt2=getXt1AndXt2.getXt2(filename2)
-    Mn=getMn(xt2,filename3, Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm)
-    Mw=getMw(xt1,xt2, filename3, Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm)
+def getAlldata(filename2,filename3,Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm,**kwargs):
+    xt1=getXt1AndXt2.getXt1(filename2,**kwargs)
+    xt2=getXt1AndXt2.getXt2(filename2,**kwargs)
+    Mn=getMn(xt2,filename3, Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm,**kwargs)
+    Mw=getMw(xt1,xt2, filename3, Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm,**kwargs)
     PDI=getPDI(Mn,Mw)
     return Mn,Mw,PDI
 

@@ -1,9 +1,11 @@
 from scipy import optimize, math
 from app import getXt1AndXt2
-import  numpy as np
+import numpy as np
 
-def f(x,a,b):
-    return a*x+b
+
+def f(x, a, b):
+    return a * x + b
+
 
 # 步骤1，对升温数据进行基线修正
 def correctHot(filename,**kwargs):
@@ -68,9 +70,9 @@ def correctHot(filename,**kwargs):
             if (abs(x[i] - kwargs['heatEnd']) < 0.001):
                 flag2 = i
                 break
-        for i in range(flag1, flag2 + 1):
-            x1.append(x0[i])
-            y1.append(y0[i])
+    for i in range(flag1, flag2 + 1):
+        x1.append(x0[i])
+        y1.append(y0[i])
     else:
         if ('heatStart' in kwargs):
             for i in range(len(x)):
@@ -88,38 +90,9 @@ def correctHot(filename,**kwargs):
             for i in range(temp, flag + 1):
                 x1.append(x0[i])
                 y1.append(y0[i])
+    print(x1[0],x1[-1])
     return x1, y1
 
-#步骤2，求熔融焓Hm(由前台自己输入)
-
-#步骤3，求Tm（计算Mn和Mw时使用的不同）
-#步骤3.1，计算基线修正后的温度的平均温度（Mn）
-def getAverageTm(filename,**kwargs):
-    x=correctHot(filename,**kwargs)[0]
-    sum=0
-    for i in range(len(x)):
-        sum=sum+x[i]
-    Tm=sum/len(x)
-    return Tm
-
-#3.2，求出纵坐标乘以横坐标除以纵坐标之和作为平均温度（Mw）
-def getTmOfMw(filename,**kwargs):
-    x,y=correctHot(filename,**kwargs)
-    sum=0
-    sum1=0
-    for i in range(len(x)):
-        sum=x[i]*abs(y[i])+sum
-        sum1=abs(y[i])+sum1
-    tm=sum/sum1
-    return tm
-
-
 if __name__ == '__main__':
-    filename = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
-    # filename = 'C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C heating.csv'
-    # filename= 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 heating after 10K-min.csv'
-    correctHot(filename)
-    average=getAverageTm(filename)
-    print('average:%f'%average)
-    tm=getTmOfMw(filename)
-    print('tm:%f' % tm)
+    filename = '../static/file/20180921185434升温曲线.csv'
+    correctHot(filename,heatStart=75.2764,heatEnd=169.606)

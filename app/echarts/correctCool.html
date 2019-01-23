@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="echarts.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $("#cool").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas1=[];
+                        for(var i=0;i<=result['data1'].length-1;i++){
+                            var data=[];
+                            data[0]=result['data1'][i]['x'];
+                            data[1]=result['data1'][i]['y'];
+                            datas1.push(data);
+                        }
+                        var datas2=[];
+                        var start=[];
+                        start[0]=result['data2']['start']['x'];
+                        start[1]=result['data2']['start']['y'];
+                        datas2.push(start);
+                        var end=[];
+                        end[0]=result['data2']['end']['x'];
+                        end[1]=result['data2']['end']['y'];
+                        datas2.push(end);
+
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                            title:{
+                                text:'基线修正后的降温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            color:['blue','red'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'20%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                type:'value',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'基线修正后的数据',
+                                data:datas1,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            },
+                                {
+                                    name:'基线',
+                                    data:datas2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:5,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                }
+                            ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       })
+    </script>
+</head>
+<body>
+<button id="cool">绘制降温曲线</button>
+<div id="main" style="width:400px;height:400px"></div>
+</body>
+</html>

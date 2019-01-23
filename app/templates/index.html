@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+    <script src="../static/echarts.min.js" ></script>
+    <title>化学高分子软件</title>
+    <style>
+        label{display:inline-block;width:180px;text-align:left}
+        input{width:200px;height:30px;}
+        select{width:200px;height:30px;}
+        body{
+        width:100%;
+        height:100%;
+        background: #E9E9E9;
+        }
+    </style>
+    <script>
+        function upload(){
+            var form=$("#form1");
+            var options=({
+                url:'http://127.0.0.1:5000/upload',
+                type:"POST",
+                async:false,
+                cache:false,
+                processDate:false,
+                contentType:false,
+                dataType:'json',
+                timeout:50000,
+                error:function () {
+                    alert("fail!");
+                },
+                success:function (data) {
+                    alert("上传成功!");
+                    var Mn=data["Mn"];
+                    var Mw=data["Mw"];
+                    var PDI=data["PDI"];
+                    $("#caculate").click(function () {
+                        $('#Mn').val(Mn);
+                        $('#Mw').val(Mw);
+                        $('#PDI').val(PDI);
+                    });
+                }
+
+            });
+            form.ajaxSubmit(options);
+        }
+    </script>
+    <script>
+       $(function () {
+            $("#cool").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/drawCool',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'降温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            color:['blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'降温数据',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //cool
+    </script>
+    <script>
+        $(function () {
+            $("#heat").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/drawHeat',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=0;i<result['data'].length-1;i++){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'升温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'升温数据',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'red'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //heat
+    </script>
+    <script>
+        $(function () {
+            $("#correctCool").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/drawCorrectCool',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas1=[];
+                        for(var i=result['data1'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['data1'][i]['x'];
+                            data[1]=result['data1'][i]['y'];
+                            datas1.push(data);
+                        }
+                        var datas2=[];
+                        var start=[];
+                        start[0]=result['data2']['start']['x'];
+                        start[1]=result['data2']['start']['y'];
+                        datas2.push(start);
+                        var end=[];
+                        end[0]=result['data2']['end']['x'];
+                        end[1]=result['data2']['end']['y'];
+                        datas2.push(end);
+
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                            title:{
+                                text:'基线修正后降温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            color:['blue','red'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'20%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'基线修正后的数据',
+                                data:datas1,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            },
+                                {
+                                    name:'基线',
+                                    data:datas2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                }
+                            ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //correctCool
+    </script>
+    <script>
+        $(function () {
+            $("#correctHeat").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/drawCorrectHeat',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas1=[];
+                        for(var i=0;i<=result['data1'].length-1;i++){
+                            var data=[];
+                            data[0]=result['data1'][i]['x'];
+                            data[1]=result['data1'][i]['y'];
+                            datas1.push(data);
+                        }
+                        var datas2=[];
+                        var start=[];
+                        start[0]=result['data2']['start']['x'];
+                        start[1]=result['data2']['start']['y'];
+                        datas2.push(start);
+                        var end=[];
+                        end[0]=result['data2']['end']['x'];
+                        end[1]=result['data2']['end']['y'];
+                        datas2.push(end);
+
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                            title:{
+                                text:'基线修正后升温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            color:['red','blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'20%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'基线修正后的数据',
+                                data:datas1,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'red'
+                                }
+                            },
+                                {
+                                    name:'基线',
+                                    data:datas2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'blue'
+                                    }
+                                }
+                            ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //correctHeat
+    </script>
+    <script>
+        $(function () {
+            $("#xtWithTemperature").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/xtWithTemperature',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'降温：相对结晶度—温度图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(Xt):"+value[1]
+                                },
+                            },
+                            color:['blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'Temperature(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Xt',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'相对结晶度—温度',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //xtWithTemperature
+    </script>
+    <script>
+        $(function () {
+            $("#xtWithTime").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/xtWithTime',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'降温：相对结晶度—时间图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(Time/min):"+value[0]+"<br/>"+"(Xt):"+value[1]
+                                },
+                            },
+                            color:['blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'Time/min',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Xt',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'相对结晶度-时间',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //xtWithTime
+    </script>
+    <script>
+        $(function () {
+            $("#trWithXt").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/trWithXt',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'ln(-ln(1-Xt))关于lntr的图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name;
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName;
+                                    //值
+                                    var value = params[0].value;
+                                    return "lntr:"+value[0]+"<br/>"+"ln(-ln(1-Xt)):"+value[1];
+                                },
+                            },
+                            color:['blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'ln(-ln(1-Xt))-lntr',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+        });
+       }) //trWithXt
+    </script>
+    <script>
+        $(function () {
+            $("#intersection").on('click',function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/intersection',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var temp1=[];
+                        for(var i=result['firstLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstLine'][i]['x'];
+                            data[1]=result['firstLine'][i]['y'];
+                            temp1.push(data);
+                        }
+
+                        var tempf1=[];
+                        for(var i=result['firstProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstProfitPoint'][i]['x'];
+                            data[1]=result['firstProfitPoint'][i]['y'];
+                            tempf1.push(data);
+                        }
+
+                        var temp2=[];
+                        for(var i=result['secondLine'].length-1;i>=0;i--){
+                            var data=[]
+                            data[0]=result['secondLine'][i]['x'];
+                            data[1]=result['secondLine'][i]['y'];
+                            temp2.push(data);
+                        }
+
+                        var tempf2=[];
+                        for(var i=result['secondProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['secondProfitPoint'][i]['x'];
+                            data[1]=result['secondProfitPoint'][i]['y'];
+                            tempf2.push(data);
+                        }
+
+                        var temp=[];
+                        for(var i=result['originLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['originLine'][i]['x'];
+                            data[1]=result['originLine'][i]['y'];
+                            temp.push(data);
+                        }
+
+                        var intersection=[];
+                        var flag=[];
+                        flag[0]=result['Intersection']['x'];
+                        flag[1]=result['Intersection']['y'];
+                        intersection.push(flag);
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'求交点图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name;
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName;
+                                    //值
+                                    var value = params[0].value;
+                                    return "lntr:"+value[0]+"<br/>"+"ln(-ln(1-Xt)):"+value[1];
+                                },
+                            },
+                            legend:{
+                                // data:['拟合线1','拟合点1','拟合线2','拟合点2','原始曲线','（'+flag[0]+','+flag[1]+')'],
+                                orient:'vertical',
+                                left:'10%',
+                                top:'15%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true,
+                                lineWidth:0,
+                            },
+                            yAxis:{
+                                type:'value',
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%',
+                            },
+                            series:[
+                                {
+                                    name:'拟合线1',
+                                    data:temp1,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'blue'
+                                    }
+                                },
+                                {
+                                    name:'拟合点1',
+                                    data:tempf1,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'yellow'
+                                    },
+                                },
+                                {
+                                    name:'拟合线2',
+                                    data:temp2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                },
+                                {
+                                    name:'拟合点2',
+                                    data:tempf2,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'green'
+                                    },
+                                },
+                                {
+                                    name:'原始曲线',
+                                    data:temp,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'cyan'
+                                    }
+                                },
+                                {
+                                    name:'（'+flag[0]+','+flag[1]+')',
+                                    data:intersection,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'black'
+                                    },
+                                }
+
+                                ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+        });
+            });
+       }) //intersection
+    </script>
+<body>
+<div id="div1">
+    <h3>上传高分子数据：</h3>
+<form id="form1" enctype="multipart/form-data">
+    <p>
+        <label>选择高分子类型：</label>
+        <select name="select" id="select">
+            <option selected="selected">--请选择高分子类型--</option>
+            <option value="JuBingXi">聚丙烯(PP)</option>
+            <option value="JuYangHuaYiXi">聚氧化乙烯(PEO)</option>
+            <option></option>
+            <option></option>
+        </select>
+    </p>
+    <p>
+        <label>上传冷却曲线数据(Cooling Data)：</label>
+        <input type="file" name="file2" id="file2">
+    </p>
+    <p>
+        <label>上传升温曲线数据(Melting Data)：</label>
+        <input type="file" name="file3" id="file3">
+    </p>
+    <p>
+        <label>输入熔融焓(ΔHm)：</label>
+        <input type="text" name="Hm" id="HM">
+    </p>
+    <p>
+        <input type="button" value="提交" onclick="upload()">
+        <input type="reset" value="重置">
+    </p>
+</form>
+</div>
+<p>
+    <input type="button" value="计算" id="caculate">
+</p>
+
+<div id="div2">
+    <h3>计算结果为:</h3>
+    <p>
+        <label>Mn</label>
+        <input type="text" name="Mn" id="Mn">
+    </p>
+    <p>
+        <label>Mw</label>
+        <input type="text" name="Mw" id="Mw">
+    </p>
+    <p>
+        <label>PDI</label>
+        <input type="text" name="PDI" id="PDI">
+    </p>
+</div>
+<h3>显示计算过程中拟合的图像：</h3>
+<div id="div3" style="float:left">
+    <p>
+        <button id="cool">绘制降温曲线图像</button>
+    </p>
+    <p>
+        <button id="heat">绘制升温曲线图像</button>
+    </p>
+    <p>
+        <button id="correctCool">绘制基线修正后降温曲线图像</button>
+    </p>
+    <p>
+        <button id="correctHeat">绘制基线修正后升温曲线图像</button>
+    </p>
+    <p>
+        <button id="xtWithTemperature">降温:相对结晶度-温度图像</button>
+    </p>
+    <p>
+        <button  id="xtWithTime">降温:相对结晶度-时间图像</button>
+    </p>
+    <p>
+        <button id="trWithXt">显示ln(-ln(l-Xt))关于lntr的图像</button>
+    </p>
+    <p>
+        <button id="intersection">显示求交点的图像</button>
+    </p>
+</div>
+<div id="main" style="width: 500px;height:300px;float:left;margin-left:20px;border-style: solid;border-width:1px;"></div>
+<div id="div5" style="clear:both">
+    <input type="button" id="correct" value="纠正模型参数" style="color:blue;" onclick="window.location.href='http://127.0.0.1:5000/correct'">
+</div>
+</body>
+</html>

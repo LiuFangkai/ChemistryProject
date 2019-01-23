@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+    <script src="../static/echarts.min.js"3></script>
+    <script>
+        $(function () {
+            $.ajax({
+                    url:'http://127.0.0.1:5000/',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var temp1=[];
+                        for(var i=result['firstLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstLine'][i]['x'];
+                            data[1]=result['firstLine'][i]['y'];
+                            temp1.push(data);
+                        }
+
+                        var tempf1=[];
+                        for(var i=result['firstProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstProfitPoint'][i]['x'];
+                            data[1]=result['firstProfitPoint'][i]['y'];
+                            tempf1.push(data);
+                        }
+
+                        var temp2=[];
+                        for(var i=result['secondLine'].length-1;i>=0;i--){
+                            var data=[]
+                            data[0]=result['secondLine'][i]['x'];
+                            data[1]=result['secondLine'][i]['y'];
+                            temp2.push(data);
+                        }
+
+                        var tempf2=[];
+                        for(var i=result['secondProfitPoint'].length-1;i>=0;i--){
+                            var data=[]
+                            data[0]=result['secondProfitPoint'][i]['x'];
+                            data[1]=result['secondProfitPoint'][i]['y'];
+                            tempf2.push(data);
+                        }
+
+                        var temp=[];
+                        for(var i=result['originLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['originLine'][i]['x'];
+                            data[1]=result['originLine'][i]['y'];
+                            temp.push(data);
+                        }
+
+                        var intersection=[];
+                        var flag=[];
+                        flag[0]=result['Intersection']['x'];
+                        flag[1]=result['Intersection']['y'];
+                        intersection.push(flag);
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'求交点图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                            },
+                            legend:{
+                                // data:['拟合线1','拟合点1','拟合线2','拟合点2','原始曲线','（'+flag[0]+','+flag[1]+')'],
+                                orient:'vertical',
+                                left:'10%',
+                                top:'12%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true,
+                                lineWidth:0,
+                            },
+                            yAxis:{
+                                type:'value',
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%',
+                            },
+                            series:[
+                                {
+                                    name:'拟合线1',
+                                    data:temp1,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'blue'
+                                    }
+                                },
+                                {
+                                    name:'拟合点1',
+                                    data:tempf1,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'yellow'
+                                    },
+                                },
+                                {
+                                    name:'拟合线2',
+                                    data:temp2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                },
+                                {
+                                    name:'拟合点2',
+                                    data:tempf2,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'green'
+                                    },
+                                },
+                                {
+                                    name:'原始曲线',
+                                    data:temp,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'cyan'
+                                    }
+                                },
+                                {
+                                    name:'（'+flag[0]+','+flag[1]+')',
+                                    data:intersection,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'black'
+                                    },
+                                }
+
+                                ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+        });
+       }) //intersection
+    </script>
+</head>
+<body>
+    <div id="main" style="width: 500px;height: 500px;"></div>
+</body>
+</html>

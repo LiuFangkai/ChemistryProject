@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" />
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+    <script src="../static/echarts.min.js" ></script>
+    <title>Title</title>
+    <style>
+        .div-inline{ display:inline}
+    </style>
+
+    <script>
+        $(function () {
+            $.ajax({
+                    url:'http://127.0.0.1:5000/drawCorrectOriginCool',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas1=[];
+                        for(var i=result['data1'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['data1'][i]['x'];
+                            data[1]=result['data1'][i]['y'];
+                            datas1.push(data);
+                        }
+                        var datas2=[];
+                        var start=[];
+                        start[0]=result['data2']['start']['x'];
+                        start[1]=result['data2']['start']['y'];
+                        datas2.push(start);
+                        var end=[];
+                        end[0]=result['data2']['end']['x'];
+                        end[1]=result['data2']['end']['y'];
+                        datas2.push(end);
+
+                        var myCharts=echarts.init(document.getElementById('p1'));
+                        var option={
+                            title:{
+                                text:'基线修正后降温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            color:['blue','red'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'20%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'基线修正后的数据',
+                                data:datas1,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            },
+                                {
+                                    name:'基线',
+                                    data:datas2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                }
+                            ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+       }) //correctCool
+    </script>
+    <script>
+        $(function () {
+            $.ajax({
+                url:'http://127.0.0.1:5000/drawCorrectOriginHeat',
+                type:'get',
+                dataType:'json',
+                success:function (result) {
+                    var datas1=[];
+                    for(var i=0;i<=result['data1'].length-1;i++){
+                        var data=[];
+                        data[0]=result['data1'][i]['x'];
+                        data[1]=result['data1'][i]['y'];
+                        datas1.push(data);
+                    }
+                    var datas2=[];
+                    var start=[];
+                    start[0]=result['data2']['start']['x'];
+                    start[1]=result['data2']['start']['y'];
+                    datas2.push(start);
+                    var end=[];
+                    end[0]=result['data2']['end']['x'];
+                    end[1]=result['data2']['end']['y'];
+                    datas2.push(end);
+
+                    var myCharts=echarts.init(document.getElementById('p2'));
+                    var option={
+                        title:{
+                            text:'基线修正后升温曲线图像',
+                            left:'30%'
+                        },
+                        tooltip:{
+                            trigger:'axis', //或者axis
+                            formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                        },
+                        color:['red','blue'],
+                        legend:{
+                            orient:'vertical',
+                            left:'10%',
+                            top:'20%',
+                        },
+                        grid:{
+                            show:false,
+                            right:'25%',
+                            containLabel:false
+                        },
+                        xAxis:{
+                            type:'value',
+                            name:'temperatur(℃)',
+                            nameLocation:'end',
+                            scale:true
+                        },
+                        yAxis:{
+                            name:'Heatflow(a.u.)',
+                            top:'5%'
+                        },
+                        series:[{
+                            name:'基线修正后的数据',
+                            data:datas1,
+                            type:'line',
+                            symbol:'circle',
+                            symbolSize:0,
+                            lineStyle:{
+                                color:'red'
+                            }
+                        },
+                            {
+                                name:'基线',
+                                data:datas2,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }
+                        ]
+                    };
+                    myCharts.clear();
+                    myCharts.setOption(option,true);
+                }
+                });
+       }) //correctHeat
+    </script>
+    <script>
+        $(function () {
+            $.ajax({
+                    url:'http://127.0.0.1:5000/trWithXt',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('p3'));
+                        var option={
+                             title:{
+                                text:'ln(-ln(1-Xt))关于lntr的图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name;
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName;
+                                    //值
+                                    var value = params[0].value;
+                                    return "lntr:"+value[0]+"<br/>"+"ln(-ln(1-Xt)):"+value[1];
+                                },
+                            },
+                            color:['blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'ln(-ln(1-Xt))-lntr',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+       }) //trWithXt
+    </script>
+    <script>
+        $(function () {
+            $.ajax({
+                    url:'http://127.0.0.1:5000/intersection',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var temp1=[];
+                        for(var i=result['firstLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstLine'][i]['x'];
+                            data[1]=result['firstLine'][i]['y'];
+                            temp1.push(data);
+                        }
+
+                        var tempf1=[];
+                        for(var i=result['firstProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstProfitPoint'][i]['x'];
+                            data[1]=result['firstProfitPoint'][i]['y'];
+                            tempf1.push(data);
+                        }
+
+                        var temp2=[];
+                        for(var i=result['secondLine'].length-1;i>=0;i--){
+                            var data=[]
+                            data[0]=result['secondLine'][i]['x'];
+                            data[1]=result['secondLine'][i]['y'];
+                            temp2.push(data);
+                        }
+
+                        var tempf2=[];
+                        for(var i=result['secondProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['secondProfitPoint'][i]['x'];
+                            data[1]=result['secondProfitPoint'][i]['y'];
+                            tempf2.push(data);
+                        }
+
+                        var temp=[];
+                        for(var i=result['originLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['originLine'][i]['x'];
+                            data[1]=result['originLine'][i]['y'];
+                            temp.push(data);
+                        }
+
+                        var intersection=[];
+                        var flag=[];
+                        flag[0]=result['Intersection']['x'];
+                        flag[1]=result['Intersection']['y'];
+                        intersection.push(flag);
+                        var myCharts=echarts.init(document.getElementById('p4'));
+                        var option={
+                             title:{
+                                text:'求交点图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name;
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName;
+                                    //值
+                                    var value = params[0].value;
+                                    return "lntr:"+value[0]+"<br/>"+"ln(-ln(1-Xt)):"+value[1];
+                                },
+                            },
+                            legend:{
+                                // data:['拟合线1','拟合点1','拟合线2','拟合点2','原始曲线','（'+flag[0]+','+flag[1]+')'],
+                                orient:'vertical',
+                                left:'10%',
+                                top:'15%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true,
+                                lineWidth:0,
+                            },
+                            yAxis:{
+                                type:'value',
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%',
+                            },
+                            series:[
+                                {
+                                    name:'拟合线1',
+                                    data:temp1,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'blue'
+                                    }
+                                },
+                                {
+                                    name:'拟合点1',
+                                    data:tempf1,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'yellow'
+                                    },
+                                },
+                                {
+                                    name:'拟合线2',
+                                    data:temp2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                },
+                                {
+                                    name:'拟合点2',
+                                    data:tempf2,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'green'
+                                    },
+                                },
+                                {
+                                    name:'原始曲线',
+                                    data:temp,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'cyan'
+                                    }
+                                },
+                                {
+                                    name:'（'+flag[0]+','+flag[1]+')',
+                                    data:intersection,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'black'
+                                    },
+                                }
+
+                                ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+        });
+       }) //intersection
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $("#button1").on("click",function () {
+               document.getElementById("cool").style.display="block";
+           });
+        }) ;
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#button2").on("click",function () {
+               document.getElementById("heat").style.display="block";
+           });
+        }) ;
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#button3").on("click",function () {
+               document.getElementById("trWithXt").style.display="block";
+           });
+        }) ;
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#button4").on("click",function () {
+               document.getElementById("intersection").style.display="block";
+           });
+        }) ;
+    </script>
+
+    <script>
+        function modify() {
+            var form=$("#form1");
+            var options={
+                url:'http://127.0.0.1:5000/modify',
+                type:"GET",
+                async:false,
+                cache:false,
+                processDate:false,
+                contentType:false,
+                dataType:'json',
+                timeout:50000,
+                success:function (result) {
+                       var Mn0=result['data0']['Mn'];
+                       var Mw0=result['data0']['Mw'];
+                       var PDI0=result['data0']['PDI'];
+                       var Mn1=result['data1']['Mn'];
+                       var Mw1=result['data1']['Mw'];
+                       var PDI1=result['data1']['PDI'];
+                       $("#Mn0").val(Mn0);
+                       $("#Mw0").val(Mw0);
+                       $("#PDI0").val(PDI0);
+                       $("#Mn1").val(Mn1);
+                       $("#Mw1").val(Mw1);
+                       $("#PDI1").val(PDI1);
+                   },
+            };
+            form.ajaxSubmit(options);
+        }
+    </script>
+
+    <script>
+        $(function () {
+            $("#buttonSubmit").on("click",function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/drawCorrectOriginCool',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas1=[];
+                        for(var i=result['data1'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['data1'][i]['x'];
+                            data[1]=result['data1'][i]['y'];
+                            datas1.push(data);
+                        }
+                        var datas2=[];
+                        var start=[];
+                        start[0]=result['data2']['start']['x'];
+                        start[1]=result['data2']['start']['y'];
+                        datas2.push(start);
+                        var end=[];
+                        end[0]=result['data2']['end']['x'];
+                        end[1]=result['data2']['end']['y'];
+                        datas2.push(end);
+
+                        var myCharts=echarts.init(document.getElementById('p11'));
+                        var option={
+                            title:{
+                                text:'基线修正后降温曲线图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                            },
+                            color:['blue','red'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'20%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'temperatur(℃)',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'Heatflow(a.u.)',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'基线修正后的数据',
+                                data:datas1,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            },
+                                {
+                                    name:'基线',
+                                    data:datas2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                }
+                            ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+            });
+       }) //correctCool
+    </script>
+    <script>
+        $(function () {
+           $("#buttonSubmit").on("click",function () {
+                $.ajax({
+                url:'http://127.0.0.1:5000/drawCorrectOriginHeat',
+                type:'get',
+                dataType:'json',
+                success:function (result) {
+                    var datas1=[];
+                    for(var i=0;i<=result['data1'].length-1;i++){
+                        var data=[];
+                        data[0]=result['data1'][i]['x'];
+                        data[1]=result['data1'][i]['y'];
+                        datas1.push(data);
+                    }
+                    var datas2=[];
+                    var start=[];
+                    start[0]=result['data2']['start']['x'];
+                    start[1]=result['data2']['start']['y'];
+                    datas2.push(start);
+                    var end=[];
+                    end[0]=result['data2']['end']['x'];
+                    end[1]=result['data2']['end']['y'];
+                    datas2.push(end);
+
+                    var myCharts=echarts.init(document.getElementById('p21'));
+                    var option={
+                        title:{
+                            text:'基线修正后升温曲线图像',
+                            left:'30%'
+                        },
+                        tooltip:{
+                            trigger:'axis', //或者axis
+                            formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName
+                                    //值
+                                    var value = params[0].value
+                                    return "(℃):"+value[0]+"<br/>"+"(a.u.):"+value[1]
+                                },
+                        },
+                        color:['red','blue'],
+                        legend:{
+                            orient:'vertical',
+                            left:'10%',
+                            top:'20%',
+                        },
+                        grid:{
+                            show:false,
+                            right:'25%',
+                            containLabel:false
+                        },
+                        xAxis:{
+                            type:'value',
+                            name:'temperatur(℃)',
+                            nameLocation:'end',
+                            scale:true
+                        },
+                        yAxis:{
+                            name:'Heatflow(a.u.)',
+                            top:'5%'
+                        },
+                        series:[{
+                            name:'基线修正后的数据',
+                            data:datas1,
+                            type:'line',
+                            symbol:'circle',
+                            symbolSize:0,
+                            lineStyle:{
+                                color:'red'
+                            }
+                        },
+                            {
+                                name:'基线',
+                                data:datas2,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }
+                        ]
+                    };
+                    myCharts.clear();
+                    myCharts.setOption(option,true);
+                }
+                });
+           });
+       }) //correctHeat
+    </script>
+    <script>
+        $(function () {
+            $("#buttonSubmit").on("click",function () {
+               $.ajax({
+                    url:'http://127.0.0.1:5000/trWithXt',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('p31'));
+                        var option={
+                             title:{
+                                text:'ln(-ln(1-Xt))关于lntr的图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name;
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName;
+                                    //值
+                                    var value = params[0].value;
+                                    return "lntr:"+value[0]+"<br/>"+"ln(-ln(1-Xt)):"+value[1];
+                                },
+                            },
+                            color:['blue'],
+                            legend:{
+                                orient:'vertical',
+                                left:'10%',
+                                top:'22%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true
+                            },
+                            yAxis:{
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%'
+                            },
+                            series:[{
+                                name:'ln(-ln(1-Xt))-lntr',
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0,
+                                lineStyle:{
+                                    color:'blue'
+                                }
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+                });
+            });
+       }) //trWithXt
+    </script>
+    <script>
+        $(function () {
+            $("#buttonSubmit").on("click",function () {
+                $.ajax({
+                    url:'http://127.0.0.1:5000/intersection',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var temp1=[];
+                        for(var i=result['firstLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstLine'][i]['x'];
+                            data[1]=result['firstLine'][i]['y'];
+                            temp1.push(data);
+                        }
+
+                        var tempf1=[];
+                        for(var i=result['firstProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['firstProfitPoint'][i]['x'];
+                            data[1]=result['firstProfitPoint'][i]['y'];
+                            tempf1.push(data);
+                        }
+
+                        var temp2=[];
+                        for(var i=result['secondLine'].length-1;i>=0;i--){
+                            var data=[]
+                            data[0]=result['secondLine'][i]['x'];
+                            data[1]=result['secondLine'][i]['y'];
+                            temp2.push(data);
+                        }
+
+                        var tempf2=[];
+                        for(var i=result['secondProfitPoint'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['secondProfitPoint'][i]['x'];
+                            data[1]=result['secondProfitPoint'][i]['y'];
+                            tempf2.push(data);
+                        }
+
+                        var temp=[];
+                        for(var i=result['originLine'].length-1;i>=0;i--){
+                            var data=[];
+                            data[0]=result['originLine'][i]['x'];
+                            data[1]=result['originLine'][i]['y'];
+                            temp.push(data);
+                        }
+
+                        var intersection=[];
+                        var flag=[];
+                        flag[0]=result['Intersection']['x'];
+                        flag[1]=result['Intersection']['y'];
+                        intersection.push(flag);
+                        var myCharts=echarts.init(document.getElementById('p41'));
+                        var option={
+                             title:{
+                                text:'求交点图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                                formatter:function (params,ticket,callback) {
+                                    // console.log(params);
+                                    //x轴名称
+                                    var name = params[0].name;
+                                    //图表title名称
+                                    var seriesName = params[0].seriesName;
+                                    //值
+                                    var value = params[0].value;
+                                    return "lntr:"+value[0]+"<br/>"+"ln(-ln(1-Xt)):"+value[1];
+                                },
+                            },
+                            legend:{
+                                // data:['拟合线1','拟合点1','拟合线2','拟合点2','原始曲线','（'+flag[0]+','+flag[1]+')'],
+                                orient:'vertical',
+                                left:'10%',
+                                top:'15%',
+                            },
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true,
+                                lineWidth:0,
+                            },
+                            yAxis:{
+                                type:'value',
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%',
+                            },
+                            series:[
+                                {
+                                    name:'拟合线1',
+                                    data:temp1,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'blue'
+                                    }
+                                },
+                                {
+                                    name:'拟合点1',
+                                    data:tempf1,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'yellow'
+                                    },
+                                },
+                                {
+                                    name:'拟合线2',
+                                    data:temp2,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'red'
+                                    }
+                                },
+                                {
+                                    name:'拟合点2',
+                                    data:tempf2,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'green'
+                                    },
+                                },
+                                {
+                                    name:'原始曲线',
+                                    data:temp,
+                                    type:'line',
+                                    symbol:'circle',
+                                    symbolSize:0,
+                                    lineStyle:{
+                                        color:'cyan'
+                                    }
+                                },
+                                {
+                                    name:'（'+flag[0]+','+flag[1]+')',
+                                    data:intersection,
+                                    type:'scatter',
+                                    symbol:'circle',
+                                    symbolSize:8,
+                                    itemStyle:{
+                                        color:'black'
+                                    },
+                                }
+
+                                ]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+        });
+            });
+       }) //intersection
+    </script>
+
+</head>
+<h1>进行参数调整</h1>
+<h2>参数调整前图像</h2>
+<div id="p1" style="width: 500px;height:300px;float:left;margin-left:20px;border-style: solid;border-width:1px;"></div>
+<div id="p2" style="width: 500px;height:300px;float:left;margin-left:20px;border-style: solid;border-width:1px;"></div>
+<div id="p3" style="width: 500px;height:300px;float:left;margin-left:20px;margin-top:20px;border-style: solid;border-width:1px;"></div>
+<div id="p4" style="width: 500px;height:300px;float:left;margin-left:20px;margin-top:20px;border-style: solid;border-width:1px;"></div>
+<form id="form1">
+<div id="div1" style="clear:both;">
+    <h2>基线修正</h2>
+    <p>
+        <input type="button" id="button1" value="修正降温曲线基线">
+        <p id="cool" style="display:none">
+            <label>起点：</label>
+            <input type="text" name="coolStart" value="{{data.coolStart}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+            <label>终点：</label>
+            <input type="text" name="coolEnd" value="{{data.coolEnd}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+        </p>
+        <input type="button" id="button2" value="修正升温曲线基线">
+        <p id="heat" style="display:none">
+            <label>起点：</label>
+            <input type="text" name="heatStart" value="{{data.heatStart}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+            <label>终点：</label>
+            <input type="text" name="heatEnd" value="{{data.heatEnd}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+        </p>
+    </p>
+</div>
+<div id="div2">
+    <h2>修正拟合直线的区间</h2>
+    <p>
+        <input type="button" id="button3" value="修正最左侧的区间">
+        <p id="trWithXt" style="display:none">
+            <label>起点：</label>
+            <input type="text" name="leftStart" value="{{data.leftStart}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+            <label>终点：</label>
+            <input type="text" name="leftEnd" value="{{data.leftEnd}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+        </p>
+        <input type="button" id="button4" value="修正最右侧的区间">
+        <p id="intersection" style="display:none">
+            <label>起点：</label>
+            <input type="text" name="rightStart" value="{{data.rightStart}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+            <label>终点：</label>
+            <input type="text" name="rightEnd" value="{{data.rightEnd}}" onfocus="if(value=='0'){value=''}" onblur="if(value==''){value='0'}">
+        </p>
+    </p>
+</div>
+    <p>
+        <input type="button" id="buttonSubmit" value="提交" style="font-size:110%;" onclick="modify()">
+    </p>
+</form>
+<h2>参数调整后图像</h2>
+<div id="p11" style="width: 500px;height:300px;float:left;margin-left:20px;border-style: solid;border-width:1px;"></div>
+<div id="p21" style="width: 500px;height:300px;float:left;margin-left:20px;border-style: solid;border-width:1px;"></div>
+<div id="p31" style="width: 500px;height:300px;float:left;margin-left:20px;margin-top:20px;border-style: solid;border-width:1px;"></div>
+<div id="p41" style="width: 500px;height:300px;float:left;margin-left:20px;margin-top:20px;border-style: solid;border-width:1px;"></div>
+<h2 style="clear: both;">结果比较</h2>
+<div id="div3">
+    <div class="div-inline" style="float:left">
+        <h3>修正前的结果：</h3>
+    <p>
+        <label>Mn</label>
+        <input type="text" id="Mn0">
+    </p>
+    <p>
+        <label>Mw</label>
+        <input type="text" id="Mw0">
+    </p>
+    <p>
+        <label>PDI</label>
+        <input type="text" id="PDI0">
+    </p>
+    </div>
+    <div class="div-inline" style="float:left;margin-left:20px;">
+    <h3>修正后的结果：</h3>
+    <p>
+        <label>Mn</label>
+        <input type="text" id="Mn1">
+    </p>
+    <p>
+        <label>Mw</label>
+        <input type="text" id="Mw1">
+    </p>
+    <p>
+        <label>PDI</label>
+        <input type="text" id="PDI1">
+    </p>
+    </div>
+</div>
+</body>
+</html>

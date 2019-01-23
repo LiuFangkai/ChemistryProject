@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+    <script src="../static/echarts.min.js"3></script>
+    <script>
+        $(function () {
+            $.ajax({
+                    url:'http://127.0.0.1:5000/',
+                    type:'get',
+                    dataType:'json',
+                    success:function (result) {
+                        var datas=[];
+                        for(var i=result['data'].length-1;i>0;i--){
+                            var data=[];
+                            data[0]=result['data'][i]['x'];
+                            data[1]=result['data'][i]['y'];
+                            datas.push(data);
+                        }
+                        var myCharts=echarts.init(document.getElementById('main'));
+                        var option={
+                             title:{
+                                text:'降温:ln(-ln(1-Xt))关于lntr的图像',
+                                left:'30%'
+                            },
+                            tooltip:{
+                                trigger:'axis', //或者axis
+                            },
+                            legend:{},
+                            grid:{
+                                show:false,
+                                right:'25%',
+                                containLabel:false
+                            },
+                            xAxis:{
+                                type:'value',
+                                name:'ln(t/t总）',
+                                nameLocation:'end',
+                                scale:true,
+                            },
+                            yAxis:{
+                                name:'ln(-ln(1-Xt))',
+                                top:'5%',
+                            },
+                            series:[{
+                                data:datas,
+                                type:'line',
+                                symbol:'circle',
+                                symbolSize:0
+                            }]
+                        };
+                        myCharts.clear();
+                        myCharts.setOption(option,true);
+                    }
+        });
+       }) //trWithXt
+    </script>
+</head>
+<body>
+    <div id="main" style="width: 500px;height: 500px;"></div>
+</body>
+</html>

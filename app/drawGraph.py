@@ -147,7 +147,7 @@ def drawPlot(htext,xtext,ytext,x,y,cpValue,ptext,str):
     plt.legend()
     plt.grid(True)
     imagename=str+'2.jpg'
-    plt.savefig(savefold+imagename)
+    # plt.savefig(savefold+imagename)
     plt.show()
 
 if __name__ == '__main__':
@@ -155,7 +155,9 @@ if __name__ == '__main__':
     # f2 = 'C:/Users/LFK/Desktop/数据/数据/输入数据2-升温曲线.csv'
     # f1='C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C cooling.csv'
     # f2= 'C:/Users/LFK/Desktop/数据/数据/MPEO 21k 16C heating.csv'
-    f1= 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 10K-min cooling.csv'
-    f2 = 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 heating after 10K-min.csv'
+    # f1= 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 10K-min cooling.csv'
+    # f2 = 'C:/Users/LFK/Documents/WeChat Files/LFK613/Files/PP F401 heating after 10K-min.csv'
+    f1='C:/Users/LFK/Desktop/PP LWM/冷却曲线.csv'
+    f2='C:/Users/LFK/Desktop/PP LWM/升温曲线.csv'
     drawAllGraph(f1,f2)
 
