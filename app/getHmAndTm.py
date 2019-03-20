@@ -1,6 +1,5 @@
 from scipy import optimize, math
 from app import getXt1AndXt2
-import  numpy as np
 
 def f(x,a,b):
     return a*x+b
@@ -89,8 +88,6 @@ def correctHot(filename,**kwargs):
                 x1.append(x0[i])
                 y1.append(y0[i])
     return x1, y1
-
-#步骤2，求熔融焓Hm(由前台自己输入)
 
 #步骤3，求Tm（计算Mn和Mw时使用的不同）
 #步骤3.1，计算基线修正后的温度的平均温度（Mn）

@@ -17,10 +17,10 @@
         }
     </style>
     <script>
-        function upload(){
+        function result(){
             var form=$("#form1");
             var options=({
-                url:'http://127.0.0.1:5000/upload',
+                url:'http://127.0.0.1:5000/tryCaculate',
                 type:"POST",
                 async:false,
                 cache:false,
@@ -28,19 +28,13 @@
                 contentType:false,
                 dataType:'json',
                 timeout:50000,
-                error:function () {
-                    alert("fail!");
-                },
                 success:function (data) {
-                    alert("上传成功!");
                     var Mn=data["Mn"];
                     var Mw=data["Mw"];
                     var PDI=data["PDI"];
-                    $("#caculate").click(function () {
-                        $('#Mn').val(Mn);
-                        $('#Mw').val(Mw);
-                        $('#PDI').val(PDI);
-                    });
+                    $('#Mn').val(Mn);
+                    $('#Mw').val(Mw);
+                    $('#PDI').val(PDI);
                 }
 
             });
@@ -760,42 +754,38 @@
             });
        }) //intersection
     </script>
+    <script>
+        $(function () {
+            $("#correct").on('click',function () {
+                alert("试用功能结束，注册成会员使用正式版！");
+                window.location.href='http://127.0.0.1:5000/regist';
+        })
+        })
+    </script>
 <body>
 <div id="div1">
-    <h3>上传高分子数据：</h3>
-<form id="form1" enctype="multipart/form-data">
-    <p>
-        <label>选择高分子类型：</label>
-        <select name="select" id="select">
-            <option selected="selected">--请选择高分子类型--</option>
-            <option value="JuBingXi">聚丙烯(PP)</option>
-            <option value="JuYangHuaYiXi">聚氧化乙烯(PEO)</option>
-            <option></option>
-            <option></option>
-        </select>
-    </p>
-    <p>
-        <label>上传冷却曲线数据(Cooling Data)：</label>
-        <input type="file" name="file2" id="file2">
-    </p>
-    <p>
-        <label>上传升温曲线数据(Melting Data)：</label>
-        <input type="file" name="file3" id="file3">
-    </p>
-    <p>
-        <label>输入熔融焓(ΔHm)：</label>
-        <input type="text" name="Hm" id="HM">
-    </p>
-    <p>
-        <input type="button" value="提交" onclick="upload()">
-        <input type="reset" value="重置">
-    </p>
-</form>
-</div>
-<p>
-    <input type="button" value="计算" id="caculate">
-</p>
-
+    <h3>高分子数据展示：</h3>
+    <form id="form1" enctype="multipart/form-data">
+        <p>
+            <label>高分子类型：</label>
+            <input type="text" name="catagory" value="聚丙烯">
+        </p>
+        <p>
+            <label>冷却曲线数据(Cooling Data)：</label>
+            <input type="text" name="file2" id="file2" value="20190312174133输入数据1-冷却曲线.csv">
+        </p>
+        <p>
+            <label>升温曲线数据(Melting Data)：</label>
+            <input type="text" name="file3" id="file3" value="20190312174133输入数据2-升温曲线.csv">
+        </p>
+        <p>
+            <label>熔融焓(ΔHm)：</label>
+            <input type="text" name="Hm" id="HM" value="96.2">
+        </p>
+        <p>
+            <input type="button" value="计算" onclick="result()">
+        </p>
+    </form>
 <div id="div2">
     <h3>计算结果为:</h3>
     <p>
@@ -840,7 +830,8 @@
 </div>
 <div id="main" style="width: 500px;height:300px;float:left;margin-left:20px;border-style: solid;border-width:1px;"></div>
 <div id="div5" style="clear:both">
-    <input type="button" id="correct" value="纠正模型参数" style="color:blue;" onclick="window.location.href='http://127.0.0.1:5000/correct'">
+    <button id="correct" style="color:blue;">纠正模型参数</button>
+</div>
 </div>
 </body>
 </html>

@@ -1,10 +1,12 @@
 import os
-from flask import render_template
-from flask import Flask, request
+from flask import Flask
+from flask import request,Response,render_template,url_for,redirect,make_response
 from app import getMnAndMwAndPDI
-from flask import redirect,url_for
 import json
-from flask import Response
+import traceback
+import pymysql
+import time
+from app.pay import AliPay
 
 ALLOWED_EXTENSIONS = set(['txt','csv'])
 #python3自动生成文件名
@@ -86,9 +88,213 @@ def caculate(**kwargs):
     Mn,Mw,PDI=getMnAndMwAndPDI.getAlldata(path2, path3, Lu, Mo, pc, deltaHm0, sigmae, Tm0,deltaHm,**kwargs)
     return Mn,Mw,PDI
 
-@app.route('/')
+@app.route('/tryCaculate',methods=['POST'])
+def caculate0():
+    if request.method == 'POST':
+        deltaHm = float(request.form.get('Hm'))
+        Lu, Mo, pc, deltaHm0, sigmae, Tm0 = getData(JBXData)
+        Mn, Mw, PDI = getMnAndMwAndPDI.getAlldata('./static/file/'+request.form.get('file2'), './static/file/'+request.form.get('file3'), Lu, Mo, pc,
+                                                  deltaHm0, sigmae, Tm0, deltaHm)
+        data0={
+            "Mn":Mn,
+            "Mw":Mw,
+            "PDI":PDI
+        }
+        global path2
+        global path3
+        path2='./static/file/'+request.form.get('file2')
+        path3='./static/file/'+request.form.get('file3')
+        return Response(json.dumps(data0),content_type='application/json')
+
+@app.route('/index')
 def index():
     return render_template('index.html')
+
+# 默认路径访问封面
+@app.route('/')
+def cover():
+    return render_template('cover.html')
+
+#点击登录按钮时跳转
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+#获取登录参数及处理
+@app.route('/login1')
+def getLoginRequest():
+#查询用户名及密码是否匹配及存在
+    #连接数据库,此前在数据库中创建数据库TESTDB
+    db = pymysql.connect("localhost","root","root","test" )
+    # 使用cursor()方法获取操作游标
+    cursor = db.cursor()
+    # SQL 查询语句
+    sql = "select * from user where user="+request.args.get('user')+" and password="+request.args.get('password')+""
+    try:
+        # 执行sql语句
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        print(len(results))
+        if len(results)==1:
+            return redirect(url_for('index'))
+        else:
+            return '用户名或密码不正确'
+        # 提交到数据库执行
+        db.commit()
+    except:
+        # 如果发生错误则回滚
+        traceback.print_exc()
+        db.rollback()
+    # 关闭数据库连接
+    db.close()
+
+@app.route('/correctpassword')
+def correctpassword():
+    return render_template('correctPassword.html')
+
+@app.route('/correctPassword')
+def correctPassword():
+    #连接数据库,此前在数据库中创建数据库test
+    db = pymysql.connect("localhost","root","root","test" )
+    # 使用cursor()方法获取操作游标
+    cursor = db.cursor()
+    # SQL 插入语句
+    sql = "UPDATE user set password="+request.args.get('password1')+" where user="+request.args.get('user')+""
+    try:
+        # 执行sql语句
+        cursor.execute(sql)
+        # 提交到数据库执行
+        db.commit()
+         #修改成功之后跳转到登录页面
+        return render_template('login.html')
+    except:
+        #抛出错误信息
+        traceback.print_exc()
+        # 如果发生错误则回滚
+        db.rollback()
+        return '修改失败'
+    # 关闭数据库连接
+    db.close()
+
+
+#单击试用按钮时跳转
+@app.route('/try')
+def trial():
+    return render_template('try.html')
+
+#默认路径访问注册页面
+@app.route('/regist')
+def regist():
+    return render_template('regist.html')
+
+#获取注册请求及处理
+@app.route('/register')
+def getRigistRequest():
+#把用户名和密码注册到数据库中
+    #连接数据库,此前在数据库中创建数据库test
+    db = pymysql.connect("localhost","root","root","test" )
+    # 使用cursor()方法获取操作游标
+    cursor = db.cursor()
+    # SQL 插入语句
+    sql = "INSERT INTO user(user, password) VALUES ("+request.args.get('user')+", "+request.args.get('password')+")"
+    try:
+        # 执行sql语句
+        cursor.execute(sql)
+        # 提交到数据库执行
+        db.commit()
+         #注册成功之后跳转到登录页面
+        return redirect(url_for('pay'))
+    except:
+        #抛出错误信息
+        traceback.print_exc()
+        # 如果发生错误则回滚
+        db.rollback()
+        return '注册失败'
+    # 关闭数据库连接
+    db.close()
+
+def get_ali_object():
+    # 沙箱环境地址：https://openhome.alipay.com/platform/appDaily.htm?tab=info
+    app_id = "2016092500596559"  #  APPID （沙箱应用）
+
+    # 支付完成后，支付偷偷向这里地址发送一个post请求，识别公网IP,如果是 192.168.20.13局域网IP ,支付宝找不到，def page2() 接收不到这个请求
+    notify_url = "http://127.0.0.1:5000/page2/"
+
+    # 支付完成后，跳转的地址。
+    return_url = "http://127.0.0.1:5000/index"
+
+    merchant_private_key_path = "./static/keys/app_private_2048.txt" # 应用私钥
+    alipay_public_key_path = "./static/keys/alipay_public_2048.txt"  # 支付宝公钥
+
+    alipay = AliPay(
+        appid=app_id,
+        app_notify_url=notify_url,
+        return_url=return_url,
+        app_private_key_path=merchant_private_key_path,
+        alipay_public_key_path=alipay_public_key_path,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥
+        debug=True,  # 默认False,
+    )
+    return alipay
+
+@app.route('/pay')
+def pay():
+    return render_template('pay.html')
+
+@app.route('/pay',methods=['POST'])
+def page1():
+    # 根据当前用户的配置，生成URL，并跳转。
+    money =float(request.form.get("money"))
+    print(money)
+    alipay = get_ali_object()
+
+    # 生成支付的url
+    query_params = alipay.direct_pay(
+        subject="结晶聚合物分子量分子量计算系统会员充值",  # 商品简单描述
+        out_trade_no="x2" + str(datetime.now().strftime("%Y%m%d%H%M%S")),  # 用户购买的商品订单号（每次不一样）
+        total_amount=money,  # 交易金额(单位: 元 保留俩位小数)
+    )
+    pay_url = "https://openapi.alipaydev.com/gateway.do?{0}".format(query_params)  # 支付宝网关地址（沙箱应用）
+    return redirect(pay_url)
+
+@app.route('/page2',methods=['POST'])
+def page2():
+    alipay = get_ali_object()
+    if request.method == "POST":
+        # 检测是否支付成功
+        # 去请求体中获取所有返回的数据：状态/订单号
+        from urllib.parse import parse_qs
+        # name&age=123....
+        body_str = request.body.decode('utf-8')
+        post_data = parse_qs(body_str)
+
+        post_dict = {}
+        for k, v in post_data.items():
+            post_dict[k] = v[0]
+
+        # post_dict有10key： 9 ，1
+        sign = post_dict.pop('sign', None)
+        status = alipay.verify(post_dict, sign)
+        print('------------------开始------------------')
+        print('POST验证', status)
+        print(post_dict)
+        out_trade_no = post_dict['out_trade_no']
+
+        # 修改订单状态
+        # models.Order.objects.filter(trade_no=out_trade_no).update(status=2)
+        print('------------------结束------------------')
+        # 修改订单状态：获取订单号
+        return make_response('index')
+
+    else:
+        params = request.GET.dict()
+        sign = params.pop('sign', None)
+        status = alipay.verify(params, sign)
+        print('==================开始==================')
+        print('GET验证', status)
+        print('==================结束==================')
+        return redirect('index')
+
+
 
 data0={}
 @app.route('/upload',methods=['POST'])

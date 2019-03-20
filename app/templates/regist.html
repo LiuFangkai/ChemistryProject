@@ -70,16 +70,17 @@
         <!-- 右侧登陆界面 -->
         <div class="sideright">
             <div class="index">
-                <form action="/login1" method="get">
-                    <p class="headline">用户登陆</p>
+                <form action="/register" method="get">
+                    <p class="headline">用户注册</p>
                     <p class="astyle">用户名：</p>
                     <input type="text" placeholder="请输入您的用户名" name="user">
                     <p class="astyle">密码：</p>
                     <input type="text" placeholder="请输入密码" name="password">
-                    <input type="submit" value="登陆" name="login" >
+                    <p class="astyle">确认密码：</p>
+                    <input type="text" placeholder="请再次输入密码" name="password1">
+                    <input type="submit" value="注册" name="regist" >
                     </br>
                 </form>
-                <button onclick="window.location.href='http://127.0.0.1:5000/correctpassword'" class="cstyle">忘记密码</button>
             </div>
         </div>
 </body>

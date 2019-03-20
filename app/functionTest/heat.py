@@ -23,8 +23,8 @@ def Response_headers(content):
 # def hello_world():
 #     return Response_headers('hello world')
 
-# @app.route('/echarts')
-# def echarts():
+# @app.route('/functionTest')
+# def functionTest():
 #     with open('../static/file/20180921185434升温曲线.csv', encoding="UTF-8") as f:
 #         datas = f.readlines()
 #         temps = []

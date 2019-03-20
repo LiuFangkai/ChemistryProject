@@ -1,10 +1,9 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>登陆界面1</title>
-	<style>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
         /* 主题内容 */
         .sideright{
             width: 480px;
@@ -57,29 +56,18 @@
             font-size:17px;
             color: #6a6f77;
         }
-        .cstyle{
-            display: block;
-            float: right;
-            margin-right: 46px;
-            font-size: 15px;
-        }
-
     </style>
 </head>
 <body>
-        <!-- 右侧登陆界面 -->
         <div class="sideright">
             <div class="index">
-                <form action="/login1" method="get">
-                    <p class="headline">用户登陆</p>
-                    <p class="astyle">用户名：</p>
-                    <input type="text" placeholder="请输入您的用户名" name="user">
-                    <p class="astyle">密码：</p>
-                    <input type="text" placeholder="请输入密码" name="password">
-                    <input type="submit" value="登陆" name="login" >
+                <form action="" method="post">
+                    <p class="headline">充值成为会员</p>
+                    <p class="astyle">应付金额：</p>
+                    <input type="text" name="money" value="50">
+                    <input type="submit" value="支付">
                     </br>
                 </form>
-                <button onclick="window.location.href='http://127.0.0.1:5000/correctpassword'" class="cstyle">忘记密码</button>
             </div>
         </div>
 </body>
